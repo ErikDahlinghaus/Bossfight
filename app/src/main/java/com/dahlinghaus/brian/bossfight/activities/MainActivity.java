@@ -1,24 +1,30 @@
 package com.dahlinghaus.brian.bossfight.activities;
 
-import android.content.Intent;
+import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.dahlinghaus.brian.bossfight.R;
+import com.dahlinghaus.brian.bossfight.factories.EnemyFactory;
 import com.dahlinghaus.brian.bossfight.models.Enemy;
 import com.dahlinghaus.brian.bossfight.models.Player;
 
 public class MainActivity extends AppCompatActivity {
-    Enemy myEnemy;
-    Player newPlayer = Player.getPlayerInstance();
 
+    // Set up "global" objects
+    Player newPlayer;
+    EnemyFactory enemyFactory;
+    Enemy myEnemy;
+
+    // Set up screen elements
     TextView bossMessage;
     TextView bossHp;
     TextView experiencePoints;
     TextView output;
 
+    // Handle App Start
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +36,14 @@ public class MainActivity extends AppCompatActivity {
         experiencePoints = (TextView) findViewById(R.id.experiencePoints);
         output = (TextView) findViewById(R.id.output);
 
+        // Set up player
+        newPlayer = Player.getInstance();
+
+        // Set up enemy factory
+        enemyFactory = EnemyFactory.getInstance();
+        AssetManager am = getAssets();
+        enemyFactory.loadEnemiesFromFile(am);
+
         // Spawn a new monster
         spawnNewMonster();
 
@@ -38,22 +52,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Battle Button
-    protected void battle(View v) {
-
-        myEnemy.health -= newPlayer.attack();
-        output.setText("You did " + newPlayer.attack() + " damage!");
-        if(myEnemy.health <= 0) {
-            bossHp.setText("0");
-        }else {
-            bossHp.setText(String.format("%d", myEnemy.getHealth()));
+    public void battle(View v) {
+        // Do damage to enemy based on the player and set monster HP on screen
+        if( myEnemy.doDamage(newPlayer) ) {
+            writeTo(output, "You did %d damage!", newPlayer.getLastDamageDealt());
+        } else {
+            writeTo(output, "Your attack missed!");
         }
-        if (myEnemy.isDead()) {
-            // Show nice message to the user congratulating them on their success
-            output.setText("You did " + newPlayer.attack() + " damage, and killed the " + myEnemy.getName() + "!");
+        updateBossHPView();
 
+        // Check for dead enemy and spawn a new one if necessary
+        if( myEnemy.isDead() ) {
             // Gain XP
-            newPlayer.gainExp();
+            int exp_gain = newPlayer.gainExp(myEnemy);
             updateExperienceView();
+
+            // Show nice message to the user congratulating them on their success
+            writeTo(output, "You did %d damage, and killed the %s! Gained %d EXP", newPlayer.getLastDamageDealt(), myEnemy.getName(), exp_gain);
 
             // Spawn new monster to fight
             spawnNewMonster();
@@ -61,15 +76,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void spawnNewMonster() {
-        myEnemy = new Enemy();
-        bossMessage.setText(myEnemy.getName() + " has appeared!");
-        bossHp.setText(String.format("%d", myEnemy.getHealth()));
+        myEnemy = enemyFactory.next();
+        writeTo(bossMessage, "%s has appeared!", myEnemy.getName());
+        updateBossHPView();
+    }
+
+    private void updateBossHPView() {
+        writeTo(bossHp, myEnemy.getCurrentHP());
     }
 
     private void updateExperienceView() {
-        experiencePoints.setText(String.format("%d", newPlayer.getExp()));
+        writeTo(experiencePoints, newPlayer.getExp());
     }
     // END Battle Button
+
+    // Helpers to write to TextViews
+    // use like writeTo(bossMessage, "something %d", integerthing);
+    private void writeTo(TextView v, String s) {
+        v.setText(s);
+    }
+
+    private void writeTo(TextView v, String s, Object... args) {
+        writeTo(v, String.format(s, args));
+    }
+
+    private void writeTo(TextView v, Object o) {
+        String s = String.valueOf(o);
+        writeTo(v, s);
+    }
 
 
     // Stats View

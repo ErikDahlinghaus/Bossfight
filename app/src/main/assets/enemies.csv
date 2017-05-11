@@ -1,0 +1,4 @@
+// name, res_name, min_hp, max_hp, min_exp, max_exp, min_attack, max_attack, evasion, accuracy
+Skeleton King,skeleton_king,100,300,15,20,10,20,10,10
+Dragon Knight,dragon_knight,100,300,15,20,10,20,10,10
+Imp Boss,imp_boss,50,100,10,10,10,20,10,10
