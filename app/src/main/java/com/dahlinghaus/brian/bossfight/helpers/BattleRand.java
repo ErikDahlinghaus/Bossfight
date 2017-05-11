@@ -7,13 +7,19 @@ import java.util.Random;
  */
 
 public class BattleRand {
-    private final Random rand = new Random();
+    private static Random rand = new Random();
+
+    private void resetRandom() {
+        rand = new Random();
+    }
 
     public int d(int n) {
+        resetRandom();
         return rand.nextInt(n)+1;
     }
 
     public int between(int min, int max) {
+        resetRandom();
         int diff = max-min;
         if( diff <= 0 ) {
             return 1;

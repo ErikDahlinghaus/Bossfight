@@ -108,7 +108,7 @@ public class Enemy implements IFightable {
     public int getMaxAttack() { return max_attack; }
     public int getMinEXP() { return min_exp; }
     public int getMaxEXP() { return max_exp; }
-    public int getExp() { return rand.between(min_exp, max_exp); }
+    public int gainExp() { return rand.between(min_exp, max_exp); }
     public boolean isDead() { return (current_hp <= 0) ? true : false; }
 
     // Do damage to enemy

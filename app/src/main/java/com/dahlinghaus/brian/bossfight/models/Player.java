@@ -3,8 +3,6 @@ package com.dahlinghaus.brian.bossfight.models;
 import com.dahlinghaus.brian.bossfight.helpers.BattleRand;
 import com.dahlinghaus.brian.bossfight.helpers.Logger;
 
-import java.util.Random;
-
 /**
  * Created by edahlinghaus on 5/10/17.
  */
@@ -73,7 +71,7 @@ public class Player implements IFightable {
     // Gain exp based on mob
     // returns the number of XP received for convenience
     public int gainExp(Enemy e) {
-        int exp_gain = 5+e.getExp();
+        int exp_gain = 5+e.gainExp();
         exp += exp_gain;
         return exp_gain;
     }

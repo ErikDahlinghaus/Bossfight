@@ -101,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void writeTo(TextView v, Object o) {
-        String s = String.valueOf(o);
-        writeTo(v, s);
+        writeTo(v, String.valueOf(o));
     }
 
 
